@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zBANK</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #334155;
+    --border: #475569;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --blue: #3b82f6;
+    --blue2: #60a5fa;
+    --green: #22c55e;
+    --green2: #4ade80;
+    --red: #ef4444;
+    --red2: #f87171;
+    --gold: #f59e0b;
+    --purple: #8b5cf6;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+  }
+  .app {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* ── Login Screen ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-top: 2rem;
+  }
+  .login-header .logo {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: white;
+    letter-spacing: -1px;
+  }
+  .login-header h1 { font-size: 1.6rem; font-weight: 700; }
+  .login-header p { color: var(--text2); font-size: 0.9rem; margin-top: 0.3rem; }
+
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  .input-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+  .input-group input {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+  .input-group input::placeholder { color: var(--card2); }
+
+  .btn {
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    color: white;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+
+  .btn-green {
+    background: var(--green);
+    color: #0f172a;
+  }
+  .btn-green:hover { background: var(--green2); }
+
+  .btn-red {
+    background: rgba(239,68,68,0.15);
+    color: var(--red2);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .btn-red:hover { background: rgba(239,68,68,0.25); }
+
+  .btn-ghost {
+    background: var(--card);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--card2); color: var(--text); }
+
+  .error-msg {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--red2);
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .error-msg.visible { display: block; }
+
+  .success-msg {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--green2);
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: none;
+    text-align: center;
+  }
+  .success-msg.visible { display: block; }
+
+  .demo-accounts {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .demo-accounts h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    margin-bottom: 0.6rem;
+  }
+  .demo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    font-size: 0.82rem;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 0.4rem 0.5rem;
+    transition: background 0.15s;
+  }
+  .demo-row:hover { background: var(--card2); }
+  .demo-row .name { color: var(--text); font-weight: 500; }
+  .demo-row .pin { color: var(--text2); font-family: 'SF Mono', monospace; font-size: 0.78rem; }
+
+  /* ── Home Screen ── */
+  .home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .home-header .greeting {
+    font-size: 0.85rem;
+    color: var(--text2);
+  }
+  .home-header .user-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .home-header .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .home-header .logout-btn:hover { border-color: var(--red); color: var(--red2); }
+
+  .balance-card {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1a1a3e 50%, #2d1b4e 100%);
+    border-radius: 16px;
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .balance-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 200px;
+    height: 200px;
+    background: rgba(139,92,246,0.15);
+    border-radius: 50%;
+  }
+  .balance-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -20%;
+    width: 160px;
+    height: 160px;
+    background: rgba(59,130,246,0.1);
+    border-radius: 50%;
+  }
+  .balance-card .label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+    position: relative;
+    z-index: 1;
+  }
+  .balance-card .amount {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 1;
+  }
+  .balance-card .amount .dollar { font-size: 1.8rem; opacity: 0.7; vertical-align: top; margin-right: 2px; }
+  .balance-card .accno {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    margin-top: 0.8rem;
+    font-family: 'SF Mono', monospace;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .action-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .action-btn:hover { border-color: var(--blue); background: rgba(59,130,246,0.05); }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn .icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .action-btn .label { font-size: 0.85rem; font-weight: 600; }
+
+  .tx-section h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    margin-bottom: 0.8rem;
+  }
+  .tx-list { list-style: none; }
+  .tx-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: var(--card);
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+  }
+  .tx-item .tx-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-right: 0.8rem;
+    flex-shrink: 0;
+  }
+  .tx-item .tx-icon.deposit { background: rgba(34,197,94,0.15); }
+  .tx-item .tx-icon.withdraw { background: rgba(239,68,68,0.15); }
+  .tx-item .tx-left { display: flex; align-items: center; }
+  .tx-item .tx-type { font-weight: 600; font-size: 0.9rem; }
+  .tx-item .tx-bal { font-size: 0.75rem; color: var(--text2); }
+  .tx-item .tx-amount { font-weight: 700; font-size: 0.95rem; }
+  .tx-item .tx-amount.pos { color: var(--green); }
+  .tx-item .tx-amount.neg { color: var(--red2); }
+
+  .empty-tx {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text2);
+    font-size: 0.85rem;
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 20px 20px 12px 12px;
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+    animation: slideUp 0.25s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modal .close-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .amount-input-wrap {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .amount-input-wrap .dollar-sign {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text2);
+    vertical-align: middle;
+  }
+  .amount-input-wrap input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    width: 70%;
+    font-family: inherit;
+    outline: none;
+  }
+  .amount-input-wrap input::placeholder { color: var(--card2); }
+
+  .quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .quick-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .quick-btn:hover { border-color: var(--blue); color: var(--text); }
+
+  .powered-by {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    font-size: 0.72rem;
+    color: var(--card2);
+    letter-spacing: 0.03em;
+  }
+  .powered-by span { color: var(--purple); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ LOGIN ═══ -->
+  <div id="screen-login" class="screen active">
+    <div class="login-header">
+      <div class="logo">zB</div>
+      <h1>zBANK</h1>
+      <p>COBOL banking, modernized to Python</p>
+    </div>
+
+    <div id="login-error" class="error-msg"></div>
+
+    <div class="input-group">
+      <label>Account Number</label>
+      <input type="text" id="inp-accno" placeholder="1000000001" inputmode="numeric">
+    </div>
+    <div class="input-group">
+      <label>PIN</label>
+      <input type="password" id="inp-pin" placeholder="••••" inputmode="numeric" maxlength="4">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" id="login-btn">Sign In</button>
+
+    <div class="demo-accounts">
+      <h4>Demo Accounts</h4>
+      <div class="demo-row" onclick="fillLogin('1000000001','1234')">
+        <span class="name">Alice Johnson</span>
+        <span class="pin">PIN 1234</span>
+      </div>
+      <div class="demo-row" onclick="fillLogin('1000000002','5678')">
+        <span class="name">Bob Smith</span>
+        <span class="pin">PIN 5678</span>
+      </div>
+      <div class="demo-row" onclick="fillLogin('1000000003','1111')">
+        <span class="name">Carol Williams</span>
+        <span class="pin">PIN 1111</span>
+      </div>
+    </div>
+
+    <div class="powered-by">Translated from <span>COBOL/CICS/VSAM</span> to Python &mdash; bugs fixed, logic preserved</div>
+  </div>
+
+  <!-- ═══ HOME ═══ -->
+  <div id="screen-home" class="screen">
+    <div class="home-header">
+      <div>
+        <div class="greeting">Welcome back,</div>
+        <div class="user-name" id="user-name">—</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+
+    <div id="home-success" class="success-msg"></div>
+    <div id="home-error" class="error-msg"></div>
+
+    <div class="balance-card">
+      <div class="label">Available Balance</div>
+      <div class="amount"><span class="dollar">$</span><span id="balance-num">0</span></div>
+      <div class="accno" id="display-accno">•••• •••• ••••</div>
+    </div>
+
+    <div class="actions">
+      <button class="action-btn" onclick="openModal('deposit')">
+        <div class="icon">+</div>
+        <div class="label">Deposit</div>
+      </button>
+      <button class="action-btn" onclick="openModal('withdraw')">
+        <div class="icon">&minus;</div>
+        <div class="label">Withdraw</div>
+      </button>
+    </div>
+
+    <div class="tx-section">
+      <h3>Recent Transactions</h3>
+      <ul class="tx-list" id="tx-list">
+        <li class="empty-tx">No transactions yet</li>
+      </ul>
+    </div>
+
+    <div class="powered-by">Translated from <span>COBOL/CICS/VSAM</span> to Python &mdash; bugs fixed, logic preserved</div>
+  </div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2>
+      <span id="modal-icon"></span>
+      <span id="modal-title">Deposit</span>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+    </h2>
+
+    <div id="modal-error" class="error-msg"></div>
+
+    <div class="amount-input-wrap">
+      <span class="dollar-sign">$</span>
+      <input type="number" id="modal-amount" placeholder="0" min="1" step="1">
+    </div>
+
+    <div class="quick-amounts">
+      <button class="quick-btn" onclick="setAmount(50)">$50</button>
+      <button class="quick-btn" onclick="setAmount(100)">$100</button>
+      <button class="quick-btn" onclick="setAmount(500)">$500</button>
+      <button class="quick-btn" onclick="setAmount(1000)">$1k</button>
+    </div>
+
+    <button class="btn" id="modal-btn" onclick="doTransaction()">Confirm</button>
+  </div>
+</div>
+
+<script>
+let session = { accno: null, holder: null, balance: 0, transactions: [] };
+let currentAction = 'deposit';
+
+function fillLogin(accno, pin) {
+  document.getElementById('inp-accno').value = accno;
+  document.getElementById('inp-pin').value = pin;
+}
+
+async function doLogin() {
+  const accno = document.getElementById('inp-accno').value.trim();
+  const pin = parseInt(document.getElementById('inp-pin').value) || 0;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  errEl.classList.remove('visible');
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({accno, pin})
+    });
+    const d = await r.json();
+
+    if (d.success) {
+      session = { accno, holder: d.holder, balance: d.balance, transactions: d.transactions || [] };
+      showHome();
+    } else {
+      errEl.textContent = d.error;
+      errEl.classList.add('visible');
+    }
+  } catch(e) {
+    errEl.textContent = 'Connection error';
+    errEl.classList.add('visible');
+  }
+
+  btn.textContent = 'Sign In';
+  btn.disabled = false;
+}
+
+function showHome() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-home').classList.add('active');
+  document.getElementById('user-name').textContent = session.holder;
+  document.getElementById('display-accno').textContent = formatAccno(session.accno);
+  updateBalance(session.balance);
+  renderTransactions();
+}
+
+function formatAccno(a) {
+  const s = String(a);
+  return s.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+}
+
+function updateBalance(val) {
+  session.balance = val;
+  document.getElementById('balance-num').textContent = val.toLocaleString('en-US');
+}
+
+function renderTransactions() {
+  const el = document.getElementById('tx-list');
+  if (session.transactions.length === 0) {
+    el.innerHTML = '<li class="empty-tx">No transactions yet</li>';
+    return;
+  }
+  el.innerHTML = '';
+  for (const tx of [...session.transactions].reverse()) {
+    const isDeposit = tx.type === 'deposit';
+    el.innerHTML += `
+      <li class="tx-item">
+        <div class="tx-left">
+          <div class="tx-icon ${tx.type}">${isDeposit ? '+' : '−'}</div>
+          <div>
+            <div class="tx-type">${isDeposit ? 'Deposit' : 'Withdrawal'}</div>
+            <div class="tx-bal">Balance: $${tx.balance.toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="tx-amount ${isDeposit ? 'pos' : 'neg'}">${isDeposit ? '+' : '−'}$${tx.amount.toLocaleString()}</div>
+      </li>`;
+  }
+}
+
+function openModal(action) {
+  currentAction = action;
+  const isDeposit = action === 'deposit';
+  document.getElementById('modal-title').textContent = isDeposit ? 'Deposit' : 'Withdraw';
+  document.getElementById('modal-icon').textContent = isDeposit ? '+' : '−';
+  document.getElementById('modal-btn').textContent = isDeposit ? 'Deposit' : 'Withdraw';
+  document.getElementById('modal-btn').className = isDeposit ? 'btn btn-green' : 'btn btn-red';
+  document.getElementById('modal-amount').value = '';
+  document.getElementById('modal-error').classList.remove('visible');
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('modal-amount').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function setAmount(val) {
+  document.getElementById('modal-amount').value = val;
+}
+
+async function doTransaction() {
+  const amount = parseInt(document.getElementById('modal-amount').value) || 0;
+  const errEl = document.getElementById('modal-error');
+  const btn = document.getElementById('modal-btn');
+
+  errEl.classList.remove('visible');
+
+  if (amount <= 0) {
+    errEl.textContent = 'Enter a valid amount';
+    errEl.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    const r = await fetch(`/api/${currentAction}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({accno: session.accno, amount})
+    });
+    const d = await r.json();
+
+    if (d.success) {
+      updateBalance(d.balance);
+      session.transactions.push({type: currentAction, amount, balance: d.balance});
+      renderTransactions();
+      closeModal();
+
+      const msgEl = document.getElementById('home-success');
+      const isDeposit = currentAction === 'deposit';
+      msgEl.textContent = `${isDeposit ? 'Deposited' : 'Withdrawn'} $${amount.toLocaleString()} successfully`;
+      msgEl.classList.add('visible');
+      setTimeout(() => msgEl.classList.remove('visible'), 3000);
+    } else {
+      errEl.textContent = d.error;
+      errEl.classList.add('visible');
+    }
+  } catch(e) {
+    errEl.textContent = 'Connection error';
+    errEl.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.textContent = currentAction === 'deposit' ? 'Deposit' : 'Withdraw';
+}
+
+async function doLogout() {
+  await fetch('/api/logout', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({accno: session.accno})
+  });
+  session = { accno: null, holder: null, balance: 0, transactions: [] };
+  document.getElementById('screen-home').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('login-error').classList.remove('visible');
+  document.getElementById('inp-pin').value = '';
+}
+
+document.getElementById('inp-pin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('modal-amount').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doTransaction();
+});
+</script>
+
+</body>
+</html>
