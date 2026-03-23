@@ -1,0 +1,22 @@
+//VSAMZBTX JOB CLASS=A,MSGCLASS=X
+//*
+//* DEFINE TRANSACTION HISTORY VSAM CLUSTER
+//* RECORD LAYOUT (36 BYTES):
+//*   TX-ACCNO   PIC 9(10)  - KEY PART 1 (ACCOUNT NUMBER)
+//*   TX-SEQNO   PIC 9(5)   - KEY PART 2 (SEQUENCE NUMBER)
+//*   TX-TYPE    PIC X(1)   - D=DEPOSIT W=WITHDRAW T=TRANSFER
+//*   TX-AMOUNT  PIC 9(10)  - TRANSACTION AMOUNT
+//*   TX-BALANCE PIC 9(10)  - BALANCE AFTER TRANSACTION
+//*
+//STEP1 EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=A
+//SYSIN DD *
+   DEFINE CLUSTER (NAME(U0210.VSAM.ZBANKTX)  -
+   VOL(B2SYS1)                               -
+   INDEXED                                   -
+   RECSZ(36 36)                              -
+   TRACKS(2,1)                               -
+   KEYS(15 0))                               -
+   DATA (NAME(U0210.VSAM.ZBANKTX.DATA))      -
+   INDEX (NAME(U0210.VSAM.ZBANKTX.INDEX))
+/*

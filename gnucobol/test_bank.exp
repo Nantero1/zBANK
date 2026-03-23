@@ -1,0 +1,60 @@
+#!/usr/bin/expect -f
+# Test: Login, Deposit, Withdraw, Transfer, Statement
+
+set timeout 10
+log_user 1
+
+spawn ./zbank
+
+# --- Boot sequence ---
+expect "ACCOUNT....."
+
+# --- LOGIN ---
+send "1000000001\r"
+expect "PIN........."
+send "1234\r"
+expect "ENTER.=LOGIN"
+send "\r"
+
+expect "MAIN TERMINAL"
+expect "ACTION >"
+
+# --- DEPOSIT $500 ---
+send "D\r"
+expect "AMOUNT >"
+send "500\r"
+expect "ACTION >"
+
+# --- WITHDRAW $200 ---
+send "W\r"
+expect "AMOUNT >"
+send "200\r"
+expect "ACTION >"
+
+# --- TRANSFER $100 to account 2 ---
+send "T\r"
+expect "DEST ACCOUNT >"
+send "1000000002\r"
+expect "AMOUNT"
+send "100\r"
+expect "ACTION >"
+
+# --- STATEMENT ---
+send "S\r"
+expect "STATEMENT"
+expect "ACTION >"
+send "Q\r"
+
+# --- LOGOUT ---
+expect "ACTION >"
+send "Q\r"
+
+# --- EXIT ---
+expect "ACCOUNT....."
+send "1000000001\r"
+expect "PIN........."
+send "1234\r"
+expect "ENTER.=LOGIN"
+send "Q\r"
+
+expect eof
